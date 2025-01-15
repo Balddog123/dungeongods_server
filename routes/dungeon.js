@@ -79,12 +79,14 @@ router.patch("/id/:id", async (req, res) => {
 // This section will help you delete a record
 router.delete("/delete/:creatorId/:dungeonId", async (req, res) => {
   try {
+    const {creatorId, dungeonId} = req.params;
+    let collection = await db.collection("dungeons");
+
     const query = { 
-      _id: new ObjectId(req.params.dungeonId),
+      _id: new ObjectId(dungeonId),
       creatorId: creatorId
      };
-    const dungeon = await db.collection.findOne(query);
-    console.log(dungeon);
+    const dungeon = await collection.findOne(query);
     if(!dungeon) return res.status(403).send("Forbidden: You do not have permission to delete this dungeon!");
 
     let result = await collection.deleteOne(query);
