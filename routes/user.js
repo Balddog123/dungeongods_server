@@ -13,14 +13,14 @@ const router = express.Router();
 
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
-  let collection = await db.collection("dungeons");
+  let collection = await db.collection("users");
   let results = await collection.find({}).toArray();
   res.send(results).status(200);
 });
 
 // This section will help you get a single record by id
 router.get("/id/:id", async (req, res) => {
-  let collection = await db.collection("dungeons");
+  let collection = await db.collection("users");
   let query = { _id: new ObjectId(req.params.id) };
   let result = await collection.findOne(query);
 
@@ -29,9 +29,9 @@ router.get("/id/:id", async (req, res) => {
 });
 
 // This section will help you get a single record by name
-router.get("/name/:dungeonName", async (req, res) => {
-  let collection = await db.collection("dungeons");
-  let query = { dungeonName: req.params.dungeonName};
+router.get("/name/:userName", async (req, res) => {
+  let collection = await db.collection("users");
+  let query = { userName: req.params.userName};
   let result = await collection.findOne(query);
 
   if (!result) res.send("Not found").status(404);
@@ -42,16 +42,14 @@ router.get("/name/:dungeonName", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     let newDocument = {
-      dungeonName: req.body.dungeonName,
-      creatorId: req.body.creatorId,
-      rooms: req.body.rooms
+      userName: req.body.userName,
     };
-    let collection = await db.collection("dungeons");
+    let collection = await db.collection("users");
     let result = await collection.insertOne(newDocument);
     res.send(result).status(204);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error adding dungeon");
+    res.status(500).send("Error adding user");
   }
 });
 
@@ -61,42 +59,50 @@ router.patch("/id/:id", async (req, res) => {
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {
       $set: {
-        dungeonName: req.body.dungeonName,
-        creatorId: req.body.creatorId,
-        rooms: req.body.rooms
+        userName: req.body.userName,
       },
     };
 
-    let collection = await db.collection("dungeons");
+    let collection = await db.collection("users");
     let result = await collection.updateOne(query, updates);
     res.send(result).status(200);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating dungeon");
+    res.status(500).send("Error updating user");
   }
 });
 
-// This section will help you delete a record
-router.delete("/delete/:creatorId/:dungeonId", async (req, res) => {
-  try {
-    const query = { 
-      _id: new ObjectId(req.params.dungeonId),
-      creatorId: creatorId
-     };
-    const dungeon = await db.collection.findOne(query);
-    if(!dungeon) return res.status(403).send("Forbidden: You do not have permission to delete this dungeon!");
-
-    let result = await collection.deleteOne(query);
-
-    if (result.deletedCount === 1) {
-      res.status(200).send("Dungeon deleted successfully.");
-    } else {
-      res.status(404).send("Dungeon not found or already deleted.");
+router.delete("/delete/:userId", async (req, res) => {
+    try {
+      // Extract userId from request parameters
+      const { userId } = req.params;
+  
+      // Get the users collection
+      const collection = await db.collection("users");
+  
+      // Query the database for the user by _id
+      const query = { _id: new ObjectId(userId) };
+      const user = await collection.findOne(query);
+  
+      // If the user doesn't exist, return a forbidden error
+      if (!user) {
+        return res.status(404).send("User not found.");
+      }
+  
+      // Delete the user record
+      const result = await collection.deleteOne(query);
+  
+      if (result.deletedCount === 1) {
+        res.status(200).send("User deleted successfully.");
+      } else {
+        res.status(500).send("Failed to delete user.");
+      }
+    } catch (err) {
+      // Handle errors (e.g., invalid ObjectId format)
+      console.error(err);
+      res.status(500).send("Error deleting user.");
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error deleting dungeon");
-  }
-});
+  });
+  
 
 export default router;
