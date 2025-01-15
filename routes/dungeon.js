@@ -19,9 +19,19 @@ router.get("/", async (req, res) => {
 });
 
 // This section will help you get a single record by id
-router.get("/:id", async (req, res) => {
+router.get("/id/:id", async (req, res) => {
   let collection = await db.collection("dungeons");
   let query = { _id: new ObjectId(req.params.id) };
+  let result = await collection.findOne(query);
+
+  if (!result) res.send("Not found").status(404);
+  else res.send(result).status(200);
+});
+
+// This section will help you get a single record by name
+router.get("/name/:dungeonName", async (req, res) => {
+  let collection = await db.collection("dungeons");
+  let query = { dungeonName: req.params.dungeonName};
   let result = await collection.findOne(query);
 
   if (!result) res.send("Not found").status(404);
@@ -45,7 +55,7 @@ router.post("/", async (req, res) => {
 });
 
 // This section will help you update a record by id.
-router.patch("/:id", async (req, res) => {
+router.patch("/id/:id", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {
@@ -65,7 +75,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // This section will help you delete a record
-router.delete("/:id", async (req, res) => {
+router.delete("/id/:id", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
 
