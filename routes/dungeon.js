@@ -84,6 +84,7 @@ router.delete("/delete/:creatorId/:dungeonId", async (req, res) => {
       creatorId: creatorId
      };
     const dungeon = await db.collection.findOne(query);
+    console.log(dungeon);
     if(!dungeon) return res.status(403).send("Forbidden: You do not have permission to delete this dungeon!");
 
     let result = await collection.deleteOne(query);
