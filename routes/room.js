@@ -32,7 +32,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     let newDocument = {
-      name: req.body.name,
+      prefabName: req.body.prefabName,
       position: req.body.position,
       rotation: req.body.rotation,
       scale: req.body.scale
