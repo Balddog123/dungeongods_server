@@ -13,14 +13,14 @@ const router = express.Router();
 
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
-  let collection = await db.collection("rooms");
+  let collection = await db.collection("dungeons");
   let results = await collection.find({}).toArray();
   res.send(results).status(200);
 });
 
 // This section will help you get a single record by id
 router.get("/:id", async (req, res) => {
-  let collection = await db.collection("rooms");
+  let collection = await db.collection("dungeons");
   let query = { _id: new ObjectId(req.params.id) };
   let result = await collection.findOne(query);
 
@@ -32,17 +32,15 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     let newDocument = {
-      prefabName: req.body.prefabName,
-      position: req.body.position,
-      rotation: req.body.rotation,
-      scale: req.body.scale
+      dungeonName: req.body.dungeonName,
+      rooms: req.body.rooms
     };
-    let collection = await db.collection("rooms");
+    let collection = await db.collection("dungeons");
     let result = await collection.insertOne(newDocument);
     res.send(result).status(204);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error adding room");
+    res.status(500).send("Error adding dungeon");
   }
 });
 
@@ -52,19 +50,17 @@ router.patch("/:id", async (req, res) => {
     const query = { _id: new ObjectId(req.params.id) };
     const updates = {
       $set: {
-        name: req.body.name,
-        position: req.body.position,
-        rotation: req.body.rotation,
-        scale: req.body.scale
+        dungeonName: req.body.dungeonName,
+        rooms: req.body.rooms
       },
     };
 
-    let collection = await db.collection("rooms");
+    let collection = await db.collection("dungeons");
     let result = await collection.updateOne(query, updates);
     res.send(result).status(200);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating room");
+    res.status(500).send("Error updating dungeon");
   }
 });
 
@@ -73,13 +69,13 @@ router.delete("/:id", async (req, res) => {
   try {
     const query = { _id: new ObjectId(req.params.id) };
 
-    const collection = db.collection("rooms");
+    const collection = db.collection("dungeons");
     let result = await collection.deleteOne(query);
 
     res.send(result).status(200);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error deleting room");
+    res.status(500).send("Error deleting dungeon");
   }
 });
 
